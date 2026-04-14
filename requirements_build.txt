@@ -1,0 +1,19 @@
+# Requirements for building SLAM System executable
+# Install with: pip install -r requirements_build.txt
+
+# Core dependencies
+opencv-python>=4.8.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+scipy>=1.10.0
+scikit-learn>=1.3.0
+
+# GUI
+customtkinter>=5.2.0
+Pillow>=10.0.0
+
+# Executable builder
+pyinstaller>=6.0.0
+
+# Optional (for better performance)
+# opencv-contrib-python>=4.8.0

@@ -1,0 +1,8 @@
+{
+  "focal_length": 500,
+  "principal_point": [320, 240],
+  "baseline": 0.12,
+  "image_width": 640,
+  "image_height": 480,
+  "notes": "Default camera calibration. Adjust focal_length and baseline for your specific cameras."
+}

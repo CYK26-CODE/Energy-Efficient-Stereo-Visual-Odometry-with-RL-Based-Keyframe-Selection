@@ -1,0 +1,61 @@
+# 🔹 Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 🔹 Virtual environment
+.venv/
+venv/
+env/
+
+# 🔹 Build / distribution
+build/
+dist/
+*.egg-info/
+
+# 🔹 Logs
+logs/
+*.log
+
+# 🔹 Data (VERY IMPORTANT)
+data/
+
+# 🔹 ML Models (heavy files)
+models/
+*.pt
+*.pth
+*.h5
+*.onnx
+*.ckpt
+
+# 🔹 OS files
+.DS_Store
+Thumbs.db
+
+# 🔹 VS Code settings
+.vscode/
+
+# 🔹 Temporary files
+*.tmp
+*.temp
+
+# 🔹 Testing cache
+.pytest_cache/
+
+# 🔹 Jupyter (if used)
+.ipynb_checkpoints/
+
+# 🔹 Coverage reports
+.coverage
+htmlcov/
+
+# 🔹 App-specific (optional)
+*.sqlite3
+
+# 🔹 Large files
+*.zip
+*.tar
+*.gz
+*.mp4
+*.avi

@@ -1,0 +1,2158 @@
+%=============================================================================
+% COMPREHENSIVE TECHNICAL DOCUMENTATION
+% Integrated Stereo SLAM System with Reinforcement Learning
+% A-to-Z Line-by-Line Explanation with Deep Core Mathematics
+%=============================================================================
+
+\documentclass[12pt,a4paper,twoside]{report}
+
+%----------------------------- PACKAGES -------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{mathtools}
+\usepackage{bm}               % bold math
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{tikz}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{microtype}
+\usepackage{lmodern}
+\usepackage{setspace}
+\usepackage{mdframed}
+\usepackage{soul}
+\usepackage{upquote}
+
+%----------------------------- GEOMETRY ------------------------------------
+\geometry{
+  left=2.5cm, right=2.5cm,
+  top=3cm, bottom=3cm,
+  headheight=15pt
+}
+
+%----------------------------- COLORS --------------------------------------
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codeblue}{rgb}{0.13,0.29,0.53}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+\definecolor{mathblue}{rgb}{0.05,0.2,0.55}
+\definecolor{notegreen}{rgb}{0.0,0.4,0.0}
+\definecolor{warnorange}{rgb}{0.7,0.35,0.0}
+\definecolor{titleblue}{rgb}{0.1,0.1,0.55}
+
+%----------------------------- LISTINGS (CODE) ----------------------------
+\lstdefinestyle{pythonstyle}{
+  backgroundcolor=\color{backcolour},
+  commentstyle=\color{codegreen}\itshape,
+  keywordstyle=\color{codeblue}\bfseries,
+  numberstyle=\tiny\color{codegray},
+  stringstyle=\color{codepurple},
+  basicstyle=\ttfamily\footnotesize,
+  breakatwhitespace=false,
+  breaklines=true,
+  captionpos=b,
+  keepspaces=true,
+  numbers=left,
+  numbersep=5pt,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  tabsize=4,
+  frame=single,
+  rulecolor=\color{codegray},
+  xleftmargin=1em,
+  xrightmargin=0.5em
+}
+\lstset{style=pythonstyle, language=Python}
+
+%----------------------------- TCOLORBOX STYLES ---------------------------
+\tcbuselibrary{skins,breakable,listings}
+
+\newtcolorbox{mathbox}[1][]{
+  colback=blue!5!white, colframe=blue!40!black,
+  fonttitle=\bfseries, title={#1},
+  breakable
+}
+
+\newtcolorbox{notebox}[1][Note]{
+  colback=green!5!white, colframe=green!40!black,
+  fonttitle=\bfseries, title={#1},
+  breakable
+}
+
+\newtcolorbox{warnbox}[1][Warning]{
+  colback=orange!5!white, colframe=orange!60!black,
+  fonttitle=\bfseries, title={#1},
+  breakable
+}
+
+\newtcolorbox{defbox}[1][Definition]{
+  colback=gray!5!white, colframe=gray!50!black,
+  fonttitle=\bfseries, title={#1},
+  breakable
+}
+
+%----------------------------- HEADERS/FOOTERS ---------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\nouppercase{\leftmark}}
+\fancyhead[RE,LO]{\textit{Integrated SLAM + RL Documentation}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%----------------------------- HYPERREF ----------------------------------
+\hypersetup{
+  colorlinks=true,
+  linkcolor=titleblue,
+  filecolor=magenta,
+  urlcolor=cyan,
+  pdftitle={Integrated Stereo SLAM + RL: Complete Technical Manual},
+  pdfauthor={Auto-Generated Documentation},
+  pdfsubject={SLAM, Reinforcement Learning, Computer Vision},
+}
+
+%----------------------------- THEOREM ENVIRONMENTS ----------------------
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{remark}{Remark}[chapter]
+\newtheorem{example}{Example}[chapter]
+
+%----------------------------- CUSTOM COMMANDS ---------------------------
+\newcommand{\vect}[1]{\bm{#1}}
+\newcommand{\mat}[1]{\mathbf{#1}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\prob}{\mathbb{P}}
+\newcommand{\argmax}{\operatorname*{arg\,max}}
+\newcommand{\argmin}{\operatorname*{arg\,min}}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\abs}[1]{\left| #1 \right|}
+\newcommand{\T}{\top}           % transpose
+\newcommand{\SE}{\mathrm{SE}(3)}
+\newcommand{\SO}{\mathrm{SO}(3)}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\file}[1]{\texttt{\textcolor{codeblue}{#1}}}
+\newcommand{\lineno}[1]{\textcolor{codegray}{\small[L#1]}}
+
+%=============================================================================
+%                            DOCUMENT BEGINS
+%=============================================================================
+\begin{document}
+
+%----------------------------- TITLE PAGE --------------------------------
+\begin{titlepage}
+  \centering
+  \vspace*{1.5cm}
+  {\Huge\bfseries\color{titleblue}
+    Integrated Stereo SLAM System\\[0.4em]
+    with Reinforcement Learning\\[0.4em]
+    Keyframe Selection\par}
+  \vspace{1.5cm}
+  {\Large\itshape A Complete A-to-Z Technical Manual\\
+   Line-by-Line Code Analysis with Deep Mathematical Foundations\par}
+  \vspace{2cm}
+  \rule{\linewidth}{1pt}
+  \vspace{0.5cm}
+  {\large
+    \begin{tabular}{ll}
+      \textbf{Project:}   & Integrated Stereo SLAM + RL \\
+      \textbf{Language:}  & Python 3.x \\
+      \textbf{Modules:}   & OpenCV, NumPy, PyTorch, psutil \\
+      \textbf{Domain:}    & Computer Vision, Robotics, RL \\
+      \textbf{Doc Type:}  & Full Technical Reference Manual \\
+    \end{tabular}
+  }
+  \vspace{0.5cm}
+  \rule{\linewidth}{1pt}
+  \vfill
+  {\large\today}
+\end{titlepage}
+
+%----------------------------- TABLE OF CONTENTS -------------------------
+\tableofcontents
+\newpage
+\listoffigures
+\newpage
+\listoftables
+\newpage
+
+%=============================================================================
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{Preface}
+%=============================================================================
+
+This document is a complete, exhaustive technical reference for the
+\textbf{Integrated Stereo SLAM System with Reinforcement Learning-based Keyframe
+Selection}. It covers every aspect of the project:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Architecture overview}: how all modules fit together.
+  \item \textbf{Line-by-line code explanation}: every non-trivial line of Python
+        source code is annotated and explained.
+  \item \textbf{Deep mathematics}: the linear algebra, probability theory,
+        optimization, and RL theory behind every algorithm.
+  \item \textbf{Data-flow diagrams}: how data moves from camera pixels to the
+        3-D map and RL reward.
+  \item \textbf{Configuration tables}: hyper-parameters and their effect.
+\end{itemize}
+
+\noindent The reader is assumed to have undergraduate-level knowledge of linear
+algebra and basic Python. No prior robotics or machine-learning experience is
+required; all concepts are introduced from first principles.
+
+\setcounter{page}{1}
+
+%=============================================================================
+\chapter{Project Overview and Architecture}
+%=============================================================================
+
+\section{High-Level Purpose}
+
+The project implements a real-time \textbf{Stereo Simultaneous Localization and
+Mapping (SLAM)} pipeline for a mobile robot or wearable device equipped with two
+IP cameras. It addresses a fundamental tension in battery-powered robotics:
+
+\begin{center}
+\emph{``High-accuracy localization requires many keyframes (expensive battery-wise);\\
+      long battery life requires skipping frames (accuracy-costly).''}
+\end{center}
+
+\noindent A \textbf{Reinforcement Learning (RL)} agent observes the current
+localization uncertainty and the battery state, then decides -- for every
+incoming stereo frame -- whether to commit it as a keyframe or discard it.
+
+\section{Repository File Map}
+
+\begin{longtable}{|p{5.5cm}|p{8cm}|}
+\caption{All project files and their roles}\label{tab:filemap}\\
+\hline
+\textbf{File path} & \textbf{Role} \\ \hline
+\endfirsthead
+\hline
+\textbf{File path} & \textbf{Role} \\ \hline
+\endhead
+\file{integrated\_slam.py} (root) & Entry point: battery-aware SLAM without RL \\ \hline
+\file{app/backend/camera\_stream\_handler.py} & MJPEG stream decoder; stereo camera manager \\ \hline
+\file{app/backend/stereo\_vision.py} & Depth estimation, 3-D triangulation, Kabsch pose \\ \hline
+\file{app/backend/advanced\_features.py} & SIFT/ORB/AKAZE feature extraction; loop closure; cloud export \\ \hline
+\file{app/backend/visual\_odometry.py} & Frame-to-frame motion estimation; trajectory accumulation \\ \hline
+\file{app/backend/stereo\_slam.py} & Full SLAM system: keyframing, loop closure, bundle adjustment \\ \hline
+\file{app/backend/rl\_keyframe\_selector.py} & Q-learning agent; uncertainty/energy models \\ \hline
+\file{app/backend/integrated\_slam\_rl.py} & Ultimate SLAM+RL entry point with full UI \\ \hline
+\file{app/backend/dqn\_agent.py} & Deep Q-Network (PyTorch) for advanced keyframe selection \\ \hline
+\file{app/backend/train\_rl\_agent.py} & RL training script with SLAM simulator \\ \hline
+\file{app/backend/energy\_battery\_model.py} & Energy cost table; battery monitor; reward calculator \\ \hline
+\file{app/backend/degradation\_policy.py} & 4-level graceful degradation of SLAM quality \\ \hline
+\file{tools/launch\_*.py} & Launcher scripts for each mode \\ \hline
+\file{data/*.json} & Saved SLAM maps (trajectory + point cloud) \\ \hline
+\end{longtable}
+
+\section{System Architecture Diagram}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=1.0cm and 1.5cm,
+  every node/.style={draw, rounded corners, align=center, font=\small},
+  arr/.style={->, thick, >=stealth}
+]
+% Row 1: Cameras
+\node[fill=blue!15] (lc) {Left Camera\\(MJPEG URL)};
+\node[fill=blue!15, right=of lc] (rc) {Right Camera\\(MJPEG URL)};
+% Row 2: Stream handler
+\node[fill=cyan!15, below=of lc, xshift=1.8cm] (sh) {StereoCameraManager\\camera\_stream\_handler.py};
+% Row 3: Feature extraction
+\node[fill=yellow!20, below=of sh] (fe) {AdvancedFeatureExtractor\\advanced\_features.py};
+% Row 4: Branches
+\node[fill=orange!20, below left=of fe] (vo) {VisualOdometryEngine\\visual\_odometry.py};
+\node[fill=orange!20, below right=of fe] (sv) {StereoCalibratedPipeline\\stereo\_vision.py};
+% Row 5: SLAM
+\node[fill=red!15, below=of vo, xshift=1.8cm] (slam) {StereoSLAMSystem\\stereo\_slam.py};
+% Row 6: RL
+\node[fill=green!15, right=4cm of slam] (rl) {RLKeyframeSelector\\rl\_keyframe\_selector.py};
+% Row 7: Battery
+\node[fill=purple!15, above=of rl] (batt) {BatteryManager\\energy\_battery\_model.py};
+% Row 8: Output
+\node[fill=gray!15, below=1.5cm of slam] (out) {3-D Map + Trajectory\\(JSON / PLY)};
+
+\draw[arr] (lc) -- (sh);
+\draw[arr] (rc) -- (sh);
+\draw[arr] (sh) -- (fe);
+\draw[arr] (fe) -- (vo);
+\draw[arr] (fe) -- (sv);
+\draw[arr] (vo) -- (slam);
+\draw[arr] (sv) -- (slam);
+\draw[arr] (rl) -- node[draw=none,fill=none,sloped,above]{\tiny decide} (slam);
+\draw[arr] (batt) -- (rl);
+\draw[arr] (slam) -- (out);
+\draw[arr] (slam) |- node[draw=none,fill=none,near start,right]{\tiny uncertainty} (rl);
+\end{tikzpicture}
+\caption{High-level data-flow of the integrated SLAM+RL system.}
+\label{fig:arch}
+\end{figure}
+
+\section{Mathematical Notation Reference}
+
+\begin{table}[H]
+\centering
+\caption{Symbols used throughout this document}\label{tab:notation}
+\begin{tabular}{clp{7cm}}
+\toprule
+\textbf{Symbol} & \textbf{Type} & \textbf{Meaning} \\ \midrule
+$\mat{T} \in \SE$ & $4\times4$ matrix & Rigid-body transformation (pose) \\
+$\mat{R} \in \SO$ & $3\times3$ matrix & Rotation matrix \\
+$\vect{t} \in \R^3$ & vector & Translation vector \\
+$\mat{K}$           & $3\times3$ matrix & Camera intrinsic matrix \\
+$f$                 & scalar & Focal length (pixels) \\
+$b$                 & scalar & Stereo baseline (metres) \\
+$d$                 & scalar & Disparity (pixels) \\
+$Z$                 & scalar & Depth (metres) \\
+$\mat{F}$           & $3\times3$ matrix & Fundamental matrix \\
+$\mat{E}$           & $3\times3$ matrix & Essential matrix \\
+$Q(s,a)$            & scalar & Q-value for state $s$, action $a$ \\
+$\pi(s)$            & action & Policy mapping state to action \\
+$\varepsilon$       & scalar & Exploration rate (epsilon-greedy) \\
+$\gamma$            & scalar $\in[0,1]$ & Discount factor \\
+$\alpha$            & scalar & Learning rate \\
+$r$                 & scalar & Reward signal \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%=============================================================================
+\chapter{Mathematical Prerequisites}
+%=============================================================================
+
+\section{3-D Rigid-Body Transformations}
+
+\begin{definition}[Special Euclidean Group $\SE$]
+$\SE$ is the group of rigid-body transformations in three dimensions:
+\[
+  \SE = \left\{ \mat{T} = \begin{bmatrix} \mat{R} & \vect{t} \\ \vect{0}^\T & 1 \end{bmatrix}
+         \;\Bigg|\; \mat{R} \in \SO,\; \vect{t} \in \R^3 \right\}
+\]
+where $\SO = \{\mat{R}\in\R^{3\times3} \mid \mat{R}^\T\mat{R}=\mat{I},\;\det\mat{R}=+1\}$.
+\end{definition}
+
+\noindent A point $\vect{p}_w \in \R^3$ in world coordinates is transformed to
+camera coordinates by:
+\[
+  \vect{p}_c = \mat{R}\,\vect{p}_w + \vect{t}
+\]
+In homogeneous form:
+\[
+  \tilde{\vect{p}}_c = \mat{T}\,\tilde{\vect{p}}_w, \quad
+  \tilde{\vect{p}} = \begin{bmatrix} \vect{p} \\ 1 \end{bmatrix}
+\]
+
+\subsection{Pose Composition}
+
+Given two consecutive poses $\mat{T}_1$ (world-to-camera-1) and
+$\mat{T}_{12}$ (camera-1-to-camera-2), the cumulative pose is:
+\[
+  \mat{T}_2 = \mat{T}_1 \cdot \mat{T}_{12}
+\]
+This is exploited in \file{visual\_odometry.py} line 265:
+\begin{lstlisting}
+self.camera_pose = self.camera_pose @ T
+\end{lstlisting}
+
+\section{Camera Projection}
+
+\begin{definition}[Perspective Projection]
+A 3-D point $[X,Y,Z]^\T$ (camera frame) projects to image pixel $[u,v]^\T$:
+\[
+  u = \frac{f_x\,X}{Z} + c_x, \qquad v = \frac{f_y\,Y}{Z} + c_y
+\]
+where $(f_x,f_y)$ are focal lengths and $(c_x,c_y)$ is the principal point.
+In matrix form with intrinsic matrix $\mat{K}$:
+\[
+  \mat{K} = \begin{bmatrix} f_x & 0 & c_x \\ 0 & f_y & c_y \\ 0 & 0 & 1 \end{bmatrix}
+\]
+\[
+  \lambda\begin{bmatrix}u\\v\\1\end{bmatrix} = \mat{K}\begin{bmatrix}X\\Y\\Z\end{bmatrix}
+\]
+\end{definition}
+
+\noindent The project approximates $f_x=f_y=f=500$ px, $c_x=320$, $c_y=240$
+(file \file{stereo\_vision.py}, lines 41--42).
+
+\section{Stereo Depth Estimation}
+
+For a rectified stereo camera pair with baseline $b$ and focal length $f$,
+the disparity $d = u_L - u_R$ relates to depth $Z$ as:
+\[
+  Z = \frac{f \cdot b}{d}
+\]
+
+\begin{mathbox}[Stereo Depth Formula]
+\[
+  Z = \frac{f \cdot b}{d}, \qquad X = \frac{(u-c_x)\cdot Z}{f}, \qquad Y = \frac{(v-c_y)\cdot Z}{f}
+\]
+These three equations triangulate a 3-D point from a single stereo match.
+\end{mathbox}
+
+\noindent In code (\file{stereo\_vision.py} lines 115--168):
+\begin{lstlisting}
+# OpenCV block matching disparity
+disparity = self.stereo_matcher.compute(left_gray, right_gray)
+               .astype(np.float32)
+
+# Division by 16 converts StereoBM fixed-point output to real disparity
+depth = (self.focal_length * self.baseline) / (disparity / 16.0)
+
+# Back-projection to 3-D
+X = (x_l - cx) * depth / self.focal_length   # horizontal
+Y = (y_l - cy) * depth / self.focal_length   # vertical
+Z = depth                                      # optical axis
+\end{lstlisting}
+
+\noindent \textbf{Why divide by 16?} OpenCV's \code{StereoBM} stores disparity as
+a 16-bit fixed-point value with 4 fractional bits, so the raw integer value is
+$16\times d_{\text{real}}$.  Dividing by 16 recovers the true sub-pixel disparity.
+
+\section{Essential Matrix and Pose Recovery}
+
+\begin{definition}[Essential Matrix]
+Let $\vect{x}_1, \vect{x}_2$ be normalized image coordinates of the same scene
+point in two views with relative rotation $\mat{R}$ and translation $\vect{t}$.
+The \emph{essential matrix} $\mat{E}$ satisfies the epipolar constraint:
+\[
+  \vect{x}_2^\T \mat{E} \vect{x}_1 = 0, \qquad \mat{E} = [\vect{t}]_\times \mat{R}
+\]
+where $[\vect{t}]_\times$ is the skew-symmetric matrix of $\vect{t}$.
+\end{definition}
+
+\noindent Steps in \file{visual\_odometry.py} (lines 100--130):
+\begin{enumerate}
+  \item \textbf{Compute $\mat{E}$} using OpenCV RANSAC:
+        \code{cv2.findEssentialMat(..., method=cv2.RANSAC, prob=0.999, threshold=1.0)}
+  \item \textbf{Recover pose} $(R,t)$ via SVD decomposition of $\mat{E}$:
+        \code{cv2.recoverPose(E, pts1, pts2)}
+  \item \textbf{Update} cumulative pose: $\mat{T} \leftarrow \mat{T} \cdot \mat{T}_{new}$
+\end{enumerate}
+
+\begin{mathbox}[Essential Matrix SVD Decomposition]
+Given $\mat{E} = \mat{U}\mat{\Sigma}\mat{V}^\T$ (SVD), the four candidate
+decompositions are:
+\[
+  (\mat{R}, \vect{t}) \in \left\{
+    (\mat{U}\mat{W}\mat{V}^\T,\, +\vect{u}_3),\;
+    (\mat{U}\mat{W}\mat{V}^\T,\, -\vect{u}_3),\;
+    (\mat{U}\mat{W}^\T\mat{V}^\T,\, +\vect{u}_3),\;
+    (\mat{U}\mat{W}^\T\mat{V}^\T,\, -\vect{u}_3)
+  \right\}
+\]
+where $\mat{W}=\begin{bmatrix}0&-1&0\\1&0&0\\0&0&1\end{bmatrix}$ and
+$\vect{u}_3$ is the third column of $\mat{U}$.
+The correct decomposition is chosen via the \emph{cheirality check}:
+triangulated points must lie in front of both cameras ($Z>0$).
+\end{mathbox}
+
+\section{Kabsch Algorithm (SVD-Based Rotation)}
+
+Used in \file{stereo\_vision.py} lines 188--209 to align two 3-D point sets.
+
+\begin{theorem}[Kabsch Optimal Rotation]
+Given two zero-centered point sets $\mat{P}, \mat{Q} \in \R^{n\times3}$, the
+rotation $\mat{R}^*$ minimising $\sum_i \norm{\mat{R}\vect{p}_i - \vect{q}_i}^2$ is:
+\[
+  \mat{H} = \mat{P}^\T \mat{Q}, \quad \mat{H} = \mat{U}\mat{S}\mat{V}^\T \quad(\text{SVD})
+\]
+\[
+  \mat{R}^* = \mat{V} \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & \det(\mat{V}\mat{U}^\T) \end{bmatrix} \mat{U}^\T
+\]
+The $\det$ correction ensures $\det(\mat{R}^*)=+1$ (proper rotation).
+\end{theorem}
+
+\begin{lstlisting}
+H = points_1_centered.T @ points_2_centered  # 3x3 cross-covariance
+U, S, Vt = np.linalg.svd(H)
+R = Vt.T @ U.T                               # initial estimate
+if np.linalg.det(R) < 0:                     # reflection check
+    Vt[-1, :] *= -1                           # flip last row
+    R = Vt.T @ U.T                           # corrected rotation
+t = centroid_2 - R @ centroid_1              # optimal translation
+\end{lstlisting}
+
+\section{Reinforcement Learning Foundations}
+
+\subsection{Markov Decision Process}
+
+\begin{definition}[MDP]
+A \emph{Markov Decision Process} is a tuple $(\mathcal{S}, \mathcal{A}, P, R, \gamma)$:
+\begin{itemize}
+  \item $\mathcal{S}$: state space (localization uncertainty, energy need, battery mode)
+  \item $\mathcal{A}$: action space $\{$\code{SKIP}, \code{CREATE\_KF}$\}$
+  \item $P(s'|s,a)$: transition probability
+  \item $R(s,a)$: reward function
+  \item $\gamma \in [0,1)$: discount factor
+\end{itemize}
+\end{definition}
+
+\subsection{Q-Learning Update Rule}
+
+The tabular Q-learning update (used in \file{rl\_keyframe\_selector.py} line 258):
+\[
+  Q(s,a) \;\leftarrow\; Q(s,a) + \alpha \Bigl[ r + \gamma \max_{a'} Q(s',a') - Q(s,a) \Bigr]
+\]
+\begin{itemize}
+  \item $\alpha$: learning rate (0.1 in code)
+  \item $\gamma$: discount factor (0.95 in code)
+  \item $r$: reward from \code{compute\_reward()}
+  \item $\max_{a'} Q(s',a')$: bootstrapped future value from target state
+\end{itemize}
+
+\subsection{Deep Q-Network (Double DQN)}
+
+Used in \file{dqn\_agent.py}. The Bellman target for Double DQN avoids
+overestimation by decoupling action selection (policy net) from action evaluation
+(target net):
+\[
+  y_i = r_i + (1 - d_i)\,\gamma\; Q_{\theta^-}\!\left(s'_i,\; \argmax_{a'} Q_\theta(s'_i, a')\right)
+\]
+\begin{itemize}
+  \item $Q_\theta$: online (policy) network with parameters $\theta$
+  \item $Q_{\theta^-}$: target network with lagged parameters $\theta^-$
+  \item $d_i \in \{0,1\}$: done flag
+\end{itemize}
+
+Loss:
+\[
+  \mathcal{L}(\theta) = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \bigl(y_i - Q_\theta(s_i, a_i)\bigr)^2
+\]
+
+\subsection{Epsilon-Greedy Exploration}
+
+\[
+  a = \begin{cases}
+    \text{random action} & \text{with probability } \varepsilon \\
+    \argmax_a Q(s,a) & \text{with probability } 1-\varepsilon
+  \end{cases}
+\]
+
+Linear decay used in the DQN agent:
+\[
+  \varepsilon(t) = (\varepsilon_\text{start} - \varepsilon_\text{end})\cdot
+                  \left(1 - \frac{t}{T_\text{decay}}\right) + \varepsilon_\text{end},
+  \quad t \le T_\text{decay}
+\]
+
+%=============================================================================
+\chapter{Module: \texttt{camera\_stream\_handler.py}}
+%=============================================================================
+
+\section{Module Purpose}
+
+This module provides two classes:
+\begin{itemize}
+  \item \code{CameraStreamHandler} --- spawns a background thread to continuously
+        receive and decode MJPEG frames from a single IP camera URL.
+  \item \code{StereoCameraManager} --- wraps two \code{CameraStreamHandler} instances
+        and exposes a synchronised stereo frame pair.
+\end{itemize}
+
+\section{Line-by-Line Analysis: \texttt{CameraStreamHandler}}
+
+\subsection{Imports and Header}
+
+\begin{lstlisting}
+"""
+Camera Stream Handler Module            # L1-4: module docstring
+Handles fetching and decoding MJPEG streams from multiple camera sources
+"""
+
+import cv2        # OpenCV: image I/O, decoding
+import numpy as np  # NumPy: array operations
+import threading  # Python threading for background stream
+import time       # time.sleep(), time.time()
+import requests   # HTTP streaming GET request
+from collections import deque  # fixed-size circular buffer
+from typing import Optional, Tuple  # type hints
+\end{lstlisting}
+
+\begin{notebox}[Why \texttt{requests} instead of OpenCV's VideoCapture?]
+\code{cv2.VideoCapture(url)} is convenient but blocks the main thread if the
+camera is unreachable and does not support graceful reconnection.
+\code{requests.get(..., stream=True)} gives byte-level control, enabling custom
+JPEG boundary detection and retry logic.
+\end{notebox}
+
+\subsection{Class \texttt{CameraStreamHandler}}
+
+\begin{lstlisting}
+class CameraStreamHandler:
+    def __init__(self, camera_url: str, buffer_size: int = 2,
+                 timeout: int = 5):
+        self.camera_url = camera_url     # L28: store URL
+        self.buffer_size = buffer_size   # L29: max frames in deque
+        self.timeout = timeout           # L30: HTTP connect timeout (s)
+        self.frame_buffer = deque(maxlen=buffer_size)  # L31: circular buffer
+        self.latest_frame = None         # L32: most-recent decoded frame
+        self.is_running = False          # L33: run/stop flag
+        self.thread = None               # L34: streaming thread reference
+        self.error_count = 0             # L35: consecutive error counter
+        self.max_errors = 5              # L36: max retries before giving up
+\end{lstlisting}
+
+\textbf{Design choice -- \code{deque(maxlen=2)}:} A deque with \code{maxlen}
+automatically evicts the oldest element when full, providing a lightweight
+``always get the latest'' buffer without manual locking. For real-time SLAM it
+is critical to process the \emph{most recent} frame, not a stale one.
+
+\subsection{MJPEG Boundary Detection (Core Algorithm)}
+
+\begin{lstlisting}
+bytes_data = b''                           # L59: accumulator
+for chunk in response.iter_content(chunk_size=8192):  # L60: 8KB chunks
+    if not self.is_running:
+        break
+    bytes_data += chunk                    # L64: append
+
+    a = bytes_data.find(b'\xff\xd8')       # L67: JPEG Start-of-Image (SOI)
+    b = bytes_data.find(b'\xff\xd9')       # L68: JPEG End-of-Image (EOI)
+
+    if a != -1 and b != -1:
+        jpg_data = bytes_data[a:b+2]       # L71: slice one JPEG frame
+        bytes_data = bytes_data[b+2:]      # L72: discard processed bytes
+
+        frame = cv2.imdecode(
+            np.frombuffer(jpg_data, dtype=np.uint8),
+            cv2.IMREAD_COLOR                # L75: decode JPEG -> BGR array
+        )
+        if frame is not None:
+            self.latest_frame = frame       # L77: thread-safe write
+            self.frame_buffer.append(frame.copy())  # L78: buffered copy
+            self.error_count = 0            # L79: reset error counter
+\end{lstlisting}
+
+\begin{mathbox}[MJPEG Frame Boundary]
+JPEG files always start with the 2-byte \emph{Start of Image} (SOI) marker
+\texttt{0xFF 0xD8} and end with the \emph{End of Image} (EOI) marker
+\texttt{0xFF 0xD9}. An MJPEG stream concatenates multiple JPEGs in sequence.
+Scanning for these delimiters extracts individual frames even from partial
+network chunks.
+\end{mathbox}
+
+\subsection{Automatic Reconnection}
+
+\begin{lstlisting}
+except Exception as e:
+    self.error_count += 1
+    print(f"Stream error ({self.camera_url}): {str(e)}")
+    if self.error_count < self.max_errors:
+        time.sleep(2)                    # L85: back-off delay
+        if self.is_running:
+            self._stream_worker()        # L87: recursive retry
+\end{lstlisting}
+
+\noindent The retry logic uses \emph{recursive self-call} with a 2-second
+back-off. This is simple but note that Python has a default recursion limit of
+1000; with 5 max errors and 2-second sleep the limit is never approached in
+practice.
+
+\section{Class \texttt{StereoCameraManager}}
+
+\begin{lstlisting}
+class StereoCameraManager:
+    def __init__(self, left_camera_url: str, right_camera_url: str):
+        self.left_camera = CameraStreamHandler(left_camera_url)   # L115
+        self.right_camera = CameraStreamHandler(right_camera_url) # L116
+\end{lstlisting}
+
+Synchronisation strategy (lines 125--133):
+\begin{lstlisting}
+timeout = 10
+start_time = time.time()
+while time.time() - start_time < timeout:
+    if (self.left_camera.is_connected() and
+            self.right_camera.is_connected()):
+        return True
+    time.sleep(0.5)
+\end{lstlisting}
+
+\begin{warnbox}[Temporal Synchronisation Limitation]
+The two cameras are \emph{not} hardware-synchronised. Frames are fetched
+independently; the pairing is ``latest left + latest right''. This can
+introduce a temporal offset $\Delta t \approx 0$--$100$\,ms at 10\,fps.
+For a camera travelling at $0.5$\,m/s, $\Delta t = 50$\,ms yields a
+position error of $\approx 2.5$\,cm --- acceptable for indoor SLAM but
+not for high-speed outdoor operation.
+\end{warnbox}
+
+%=============================================================================
+\chapter{Module: \texttt{stereo\_vision.py}}
+%=============================================================================
+
+\section{Module Purpose}
+
+Implements the \code{StereoCalibratedPipeline} class, which:
+\begin{enumerate}
+  \item Extracts SIFT keypoints from a frame.
+  \item Matches features between frames using Lowe's ratio test.
+  \item Computes a dense disparity map using \code{StereoBM}.
+  \item Triangulates 3-D points from the disparity map.
+  \item Estimates camera motion between two point sets (Kabsch SVD).
+\end{enumerate}
+
+\section{SIFT Feature Extraction}
+
+\begin{lstlisting}
+self.sift = cv2.SIFT_create()    # L27: create SIFT detector
+\end{lstlisting}
+
+\begin{defbox}[SIFT: Scale-Invariant Feature Transform (Lowe, 2004)]
+SIFT detects keypoints at extrema of a \emph{Difference-of-Gaussian} (DoG)
+scale-space. For scale $\sigma$:
+\[
+  D(x,y,\sigma) = G(x,y,k\sigma)*I - G(x,y,\sigma)*I
+\]
+where $G$ is a Gaussian kernel. Each keypoint is assigned a dominant gradient
+orientation, making the $128$-dimensional descriptor rotation-invariant.
+\end{defbox}
+
+\subsection{Lowe's Ratio Test}
+
+\begin{lstlisting}
+matches = self.bf_matcher.knnMatch(desc1, desc2, k=2)  # L81
+good_matches = []
+for match_pair in matches:
+    if len(match_pair) == 2:
+        m, n = match_pair        # nearest and second-nearest
+        if m.distance < ratio_threshold * n.distance:  # L88: ratio test
+            good_matches.append((m.queryIdx, m.trainIdx))
+\end{lstlisting}
+
+\begin{mathbox}[Lowe's Ratio Test]
+For each descriptor $\vect{d}_i$ in image 1, let $\vect{d}^1_j$ and
+$\vect{d}^2_j$ be the closest and second-closest descriptors in image 2.
+A match is accepted iff:
+\[
+  \frac{\norm{\vect{d}_i - \vect{d}^1_j}}{\norm{\vect{d}_i - \vect{d}^2_j}} < \tau, \qquad \tau = 0.7
+\]
+This rejects ambiguous matches where two descriptors are nearly equidistant,
+reducing false matches from $\sim$46\% to $\sim$10\% (Lowe, 2004).
+\end{mathbox}
+
+\section{Dense Disparity with \texttt{StereoBM}}
+
+\begin{lstlisting}
+self.stereo_matcher = cv2.StereoBM_create(
+    numDisparities=128,  # L34: search range [0, 128] pixels
+    blockSize=15         # L35: 15x15 correlation window
+)
+\end{lstlisting}
+
+\noindent \code{StereoBM} implements \emph{Semi-Global Block Matching} (SGBM).
+For each pixel $(u,v)$ it finds the horizontal shift $d$ that minimises the
+Sum of Absolute Differences (SAD) within a block:
+
+\[
+  \hat{d}(u,v) = \argmin_{d} \sum_{(i,j)\in W} \abs{I_L(u+i,\; v+j) - I_R(u+i-d,\; v+j)}
+\]
+
+\section{3-D Triangulation}
+
+\begin{lstlisting}
+# Lines 155-168
+depth = depth_map[y_l, x_l]
+if depth > 0:
+    cx, cy = self.frame_width / 2, self.frame_height / 2
+    X = (x_l - cx) * depth / self.focal_length
+    Y = (y_l - cy) * depth / self.focal_length
+    Z = depth
+    points_3d.append([X, Y, Z])
+\end{lstlisting}
+
+Each pixel $(u,v)$ with depth $Z$ back-projects to 3-D using the inverse
+pinhole model:
+\[
+  \begin{bmatrix}X\\Y\\Z\end{bmatrix} =
+  Z \cdot \mat{K}^{-1} \begin{bmatrix}u\\v\\1\end{bmatrix} =
+  \begin{bmatrix}\frac{(u-c_x)Z}{f} \\ \frac{(v-c_y)Z}{f} \\ Z\end{bmatrix}
+\]
+
+%=============================================================================
+\chapter{Module: \texttt{advanced\_features.py}}
+%=============================================================================
+
+\section{Overview}
+
+This module contains six classes:
+\begin{enumerate}
+  \item \code{AdvancedFeatureExtractor} --- unified SIFT/ORB/AKAZE/hybrid extractor with CLAHE preprocessing
+  \item \code{RobustStereoMatcher} --- BF or FLANN matcher with ratio test
+  \item \code{EpipolarGeometry} --- fundamental matrix and epipolar filtering
+  \item \code{PointCloudFilter} --- outlier removal, voxel downsampling, deduplication
+  \item \code{LoopClosureDetector} --- geometric loop closure via Euclidean distance
+  \item \code{BundleAdjustment} --- simplified iterative pose refinement
+  \item \code{CloudExporter} --- PLY and JSON export utilities
+\end{enumerate}
+
+\section{CLAHE Preprocessing}
+
+\begin{lstlisting}
+clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))  # L62
+gray = clahe.apply(gray)                                       # L63
+\end{lstlisting}
+
+\begin{defbox}[CLAHE: Contrast Limited Adaptive Histogram Equalization]
+Standard histogram equalization (HE) can over-amplify noise. CLAHE divides
+the image into $8\times8$ tiles and applies HE independently in each tile,
+clipping the histogram at \emph{clipLimit} to limit amplification. Bilinear
+interpolation then merges tile boundaries. Result: locally enhanced contrast
+without noise explosion, improving feature detection in dark or uneven
+illumination.
+\end{defbox}
+
+\section{Feature Quality Score}
+
+\begin{lstlisting}
+# _calculate_quality_score (lines 93-111)
+num_score = min(len(keypoints) / self.max_features, 1.0)    # L99
+
+positions = np.array([kp.pt for kp in keypoints])
+hist, _ = np.histogram(positions[:, 0], bins=10)            # L105
+entropy = -np.sum((hist/hist.sum())*np.log(hist/hist.sum()+1e-10))  # L106
+dist_score = entropy / np.log(10)                            # L107
+
+return 0.7 * num_score + 0.3 * dist_score                   # L111
+\end{lstlisting}
+
+\begin{mathbox}[Spatial Entropy]
+Spatial entropy measures how uniformly keypoints are distributed across the
+image width. Let $h_k$ be the count in bin $k$ (10 bins along $x$-axis):
+\[
+  H = -\sum_{k=1}^{10} p_k \ln p_k, \quad p_k = \frac{h_k}{\sum_j h_j}
+\]
+Maximum entropy $H_{\max} = \ln 10$ occurs when keypoints are perfectly
+uniform. The quality component is $H / H_{\max} \in [0,1]$.
+A high-quality frame has many ($70\%$ weight) and spatially distributed
+($30\%$ weight) features.
+\end{mathbox}
+
+\section{Epipolar Constraint Filtering}
+
+\begin{lstlisting}
+# filter_by_epipolar_constraint (lines 241-266)
+points1_h = np.hstack([points1, np.ones((len(points1), 1))])  # homogeneous
+lines2 = F @ points1_h.T                      # epipolar lines in img 2
+distances = np.abs(np.sum(points2 * lines2[:2].T, axis=1)) / \
+            np.sqrt(lines2[0]**2 + lines2[1]**2)   # point-to-line dist
+return distances < threshold
+\end{lstlisting}
+
+\begin{mathbox}[Epipolar Distance]
+A point $\vect{x}_1 = [u_1,v_1,1]^\T$ maps to epipolar line $\vect{l}_2 = \mat{F}\vect{x}_1$
+in image 2. The algebraic line $\vect{l}_2 = [a,b,c]^\T$ is defined by
+$au+bv+c=0$. The distance from point $\vect{x}_2=[u_2,v_2,1]^\T$ to this
+line is:
+\[
+  d(\vect{x}_2, \vect{l}_2) = \frac{\abs{a u_2 + b v_2 + c}}{\sqrt{a^2+b^2}}
+\]
+Matches with $d > 1.0$ pixel are rejected as geometric outliers.
+\end{mathbox}
+
+\section{Voxel Grid Downsampling}
+
+\begin{lstlisting}
+indices = np.floor(points / voxel_size).astype(int)   # L320
+_, unique_idx = np.unique(indices, axis=0,
+                          return_index=True)            # L323
+return points[unique_idx], colors[unique_idx]
+\end{lstlisting}
+
+\begin{defbox}[Voxel Grid Downsampling]
+The 3-D space is partitioned into cubic voxels of side $v$ metres. Each point
+is mapped to the voxel it falls in via $\lfloor \vect{p}/v \rfloor$.
+Only the first point per unique voxel index is kept. This reduces $N$ points
+to at most $\lceil \text{vol}/v^3 \rceil$ points while preserving spatial
+structure, running in $\mathcal{O}(N\log N)$ time.
+\end{defbox}
+
+%=============================================================================
+\chapter{Module: \texttt{visual\_odometry.py}}
+%=============================================================================
+
+\section{Purpose}
+
+The \code{VisualOdometryEngine} tracks the cumulative 6-DoF camera pose by:
+\begin{enumerate}
+  \item \emph{Frame 0}: initialise 3-D point cloud from left-right stereo pair.
+  \item \emph{Frame $t>0$}: match features between current and previous left frames,
+        estimate $(\mat{R},\vect{t})$ via essential matrix, accumulate pose.
+\end{enumerate}
+
+\section{Class Initialization}
+
+\begin{lstlisting}
+self.stereo_pipeline = StereoCalibratedPipeline()   # L24: reuse stereo vision
+self.camera_pose = np.eye(4)   # L27: identity = world origin = camera start
+self.trajectory = deque(maxlen=1000)   # L30
+self.point_cloud = np.array([]).reshape(0, 3)   # L34: empty Nx3 array
+self.prev_keypoints = None   # L38: will store prior frame's keypoints
+\end{lstlisting}
+
+\noindent Starting from the identity matrix means the world coordinate system
+coincides with the camera at time 0.
+
+\section{Pose Update Derivation}
+
+Given relative rotation $\mat{R}$ and translation $\vect{t}$ between frames
+$t-1$ and $t$:
+
+\begin{lstlisting}
+# _update_camera_pose (lines 259-265)
+T = np.eye(4)
+T[:3, :3] = R       # L261: fill rotation block
+T[:3, 3] = t.flatten()  # L262: fill translation column
+
+self.camera_pose = self.camera_pose @ T   # L265: right-multiply to accumulate
+\end{lstlisting}
+
+Mathematically, if $\mat{T}_k$ is the pose at frame $k$ (world-to-camera), then:
+\[
+  \mat{T}_{k+1} = \mat{T}_k \cdot \mat{T}_{\Delta}, \quad
+  \mat{T}_\Delta = \begin{bmatrix}\mat{R} & \vect{t}\\\vect{0}^\T & 1\end{bmatrix}
+\]
+
+The camera centre in world coordinates extracted as:
+\begin{lstlisting}
+camera_center = pose[:3, 3]   # L274
+\end{lstlisting}
+This is the translation column of the accumulated pose, i.e.,
+$\vect{c}_w = \vect{t}_\text{acc}$.
+
+\section{Point Cloud World Transformation}
+
+\begin{lstlisting}
+# _transform_to_world (lines 279-296)
+R = self.camera_pose[:3, :3]
+t = self.camera_pose[:3, 3]
+points_world = (R @ points_3d.T).T + t    # L296
+\end{lstlisting}
+
+\[
+  \vect{p}_w = \mat{R}\,\vect{p}_c + \vect{t}
+\]
+
+This is a \emph{vectorised} operation: \code{points\_3d.T} is $3\times N$,
+so \code{R @ points\_3d.T} is $3\times N$, then \code{.T} gives $N\times3$,
+and \code{+ t} broadcasts the $3$-vector to every row.
+
+%=============================================================================
+\chapter{Module: \texttt{stereo\_slam.py}}
+%=============================================================================
+
+\section{Purpose and Architecture}
+
+\code{StereoSLAMSystem} is the central SLAM engine. It maintains:
+\begin{itemize}
+  \item A deque of \code{KeyFrame} objects (circular buffer, max 100).
+  \item A growing 3-D point cloud and associated colors.
+  \item A trajectory (deque of 3-D camera positions).
+  \item A loop-closure graph.
+\end{itemize}
+
+\section{KeyFrame Class}
+
+\begin{lstlisting}
+class KeyFrame:
+    def __init__(self, frame_id, timestamp, pose, left_frame,
+                 right_frame, keypoints, descriptors):
+        self.frame_id = frame_id          # L34: unique integer ID
+        self.timestamp = timestamp        # L35: Unix time of capture
+        self.pose = pose.copy()           # L36: 4x4 SE(3) matrix
+        self.left_frame = left_frame.copy()   # L37: raw BGR image
+        self.right_frame = right_frame.copy() # L38: raw BGR image
+        self.keypoints = keypoints        # L39: list of cv2.KeyPoint
+        self.descriptors = descriptors.copy() # L40: NxD numpy array
+        self.point_ids = {}               # L41: keypoint_idx -> point3D_id
+\end{lstlisting}
+
+\noindent All arrays are \emph{deep-copied} to avoid aliasing bugs when frames
+are recycled.
+
+\begin{lstlisting}
+def get_camera_center(self) -> np.ndarray:
+    return self.pose[:3, 3]    # L45: extract translation = camera position
+\end{lstlisting}
+
+\section{Keyframe Decision}
+
+\begin{lstlisting}
+def _should_create_keyframe(self, current_pose):
+    if self.last_keyframe is None:
+        return True   # L191: always accept first frame
+    displacement = np.linalg.norm(
+        current_pose[:3, 3] - self.last_pose[:3, 3])  # L194
+    return displacement > self.min_displacement        # L196
+\end{lstlisting}
+
+\begin{mathbox}[Displacement Criterion]
+The keyframe creation criterion is a simple Euclidean distance threshold in
+translation space:
+\[
+  d = \norm{\vect{t}_{k} - \vect{t}_{k-1}}_2 > d_{\min}
+\]
+where $d_{\min} = 0.05$\,m by default. This ensures keyframes capture
+sufficient parallax for reliable triangulation. The RL agent and battery manager
+\emph{adaptively scale} $d_{\min}$ to trade off accuracy vs.\ energy.
+\end{mathbox}
+
+\section{Loop Closure Detection}
+
+\begin{lstlisting}
+# _detect_loop_closure (lines 266-302)
+early_keyframes = list(self.keyframes)[:-10]   # L277: exclude last 10
+for old_keyframe in early_keyframes:
+    matches = self.stereo_matcher.match_temporal(
+        old_keyframe.descriptors, keyframe.descriptors  # L284-286
+    )
+    match_score = len(matches) / (len(old_keyframe.keypoints)
+                                  + len(keyframe.keypoints))   # L290
+    if match_score > self.loop_closure_threshold:   # L297: 0.75
+        self.loop_closures.append(...)
+\end{lstlisting}
+
+\begin{defbox}[Loop Closure via Descriptor Matching]
+Loop closure detects when the camera revisits a previously seen location.
+The match score is defined as:
+\[
+  s = \frac{|\mathcal{M}|}{n_{\text{old}} + n_{\text{current}}}
+\]
+where $|\mathcal{M}|$ is the number of successful descriptor matches and
+$n_{\text{old}}, n_{\text{current}}$ are the total keypoints. A high score
+indicates visual similarity consistent with loop closure.
+\end{defbox}
+
+\section{Point Cloud Integration}
+
+\begin{lstlisting}
+# _add_points_from_stereo (lines 198-237)
+points_3d = self.visual_odometry.stereo_pipeline
+            .compute_3d_points_from_matches(...)   # L212-214
+
+points_world = self._transform_to_world(points_3d, keyframe.pose)  # L218
+colors_sampled = self._sample_colors(left_frame, left_kp, matches) # L221
+
+self.point_cloud = np.vstack([self.point_cloud, points_world])      # L224
+self.point_cloud_colors = np.vstack([self.point_cloud_colors,
+                                     colors_sampled])                # L225
+\end{lstlisting}
+
+\noindent \code{np.vstack} concatenates along the row axis, growing the point
+cloud incrementally. In memory, a new array is allocated each time; for
+very large maps consider pre-allocated arrays with index tracking.
+
+\section{Bundle Adjustment (Simplified)}
+
+Full bundle adjustment minimises the reprojection error over all keyframes
+and 3-D points simultaneously:
+\[
+  \min_{\{\mat{T}_k\},\{\vect{P}_j\}} \sum_{k,j} \norm{\pi(\mat{T}_k, \vect{P}_j) - \vect{x}_{kj}}^2
+\]
+where $\pi$ is the projection function and $\vect{x}_{kj}$ is the observed
+2-D feature location. The current implementation (\code{optimize\_bundle},
+lines 304--323) provides a placeholder that iterates over the last 5 keyframes
+without actual optimisation --- a future extension point for a full Gauss-Newton
+or g2o solver.
+
+%=============================================================================
+\chapter{Module: \texttt{rl\_keyframe\_selector.py}}
+%=============================================================================
+
+\section{Purpose}
+
+This is the \emph{Q-learning brain} of the system. It defines:
+\begin{enumerate}
+  \item \code{KeyframeAction} --- a 2-action enum (\code{SKIP\_FRAME}, \code{CREATE\_KEYFRAME}).
+  \item \code{LocalizationUncertaintyMetrics} --- computes a scalar uncertainty $u \in [0,1]$ from the SLAM state.
+  \item \code{EnergyModel} --- returns a scalar energy-need $e \in [0,1]$ from the battery mode.
+  \item \code{RLKeyframeSelector} --- tabular Q-learning agent with discretised state space.
+  \item \code{RL\_SLAM\_Integration} --- thin integration layer connecting RL decisions to the SLAM main loop.
+\end{enumerate}
+
+\section{State Space Design}
+
+\begin{lstlisting}
+def discretize_state(self, uncertainty: float,
+                     energy_need: float) -> Tuple[int, int]:
+    uncertainty_bin = min(int(uncertainty * self.state_bins),
+                         self.state_bins - 1)   # L154
+    energy_bin = min(int(energy_need * self.state_bins),
+                    self.state_bins - 1)        # L155
+    return uncertainty_bin, energy_bin
+\end{lstlisting}
+
+With \code{state\_bins=10} and 4 battery modes, the state space has
+$10 \times 10 \times 4 = 400$ discrete states. The Q-table maps each state
+to 2 action values: $(Q_{\text{skip}}, Q_{\text{create}})$.
+
+\section{Uncertainty Metric Computation}
+
+\begin{lstlisting}
+# update_from_slam (lines 33-76)
+# Component 1: position variance of last 5 trajectory points
+recent_positions = trajectory[-5:]
+self.position_variance = float(np.var(recent_positions))   # L43
+
+# Component 2: tracking error from point density
+points_per_kf = total_points / max(total_keyframes, 1)    # L51
+tracking_error = 1.0 - (points_per_kf / 100.0) if < 100  # L55
+
+# Component 3: feature match confidence (loop closure rate)
+feature_match_confidence = max(0, 1.0-(loop_closures/...)) # L64
+
+# Combined uncertainty
+uncertainty = (
+    min(self.position_variance, 1.0) * 0.3 +
+    self.tracking_error * 0.4 +
+    (1.0 - self.feature_match_confidence) * 0.3   # L67-71
+)
+\end{lstlisting}
+
+\begin{mathbox}[Uncertainty Aggregation]
+\[
+  u = 0.3 \min(\sigma^2_\text{pos}, 1) + 0.4\, e_\text{track} + 0.3\,(1 - c_\text{feat})
+\]
+where:
+\begin{itemize}
+  \item $\sigma^2_\text{pos}$: variance of the last 5 camera positions
+        (high if camera is drifting or estimations are noisy)
+  \item $e_\text{track} = 1 - \min(\bar{n}_{\text{pts}}/100,\, 1)$: normalised
+        inverse point density; sparse maps indicate poor tracking
+  \item $c_\text{feat}$: feature confidence; decreases as loop-closure rate rises
+        (many loop closures suggest uncorrected drift)
+\end{itemize}
+\end{mathbox}
+
+\section{Reward Function}
+
+\begin{lstlisting}
+# compute_reward (lines 191-236)
+uncertainty_improvement = max(0, prev_uncertainty - uncertainty)
+localization_reward = uncertainty_improvement * 10.0   # L211
+
+if action == CREATE_KEYFRAME:
+    energy_penalty = -energy_need * 5.0               # L215
+    if uncertainty > 0.5:
+        localization_reward += 5.0    # L219: needed KF
+    else:
+        localization_reward -= 3.0    # L221: wasted KF
+    reward = localization_reward + energy_penalty
+
+else:  # SKIP_FRAME
+    energy_reward = energy_need * 3.0    # L227
+    if uncertainty > 0.6:
+        energy_reward -= 5.0             # L231: missed needed KF
+    reward = energy_reward
+
+return np.clip(reward, -10.0, 10.0)     # L236
+\end{lstlisting}
+
+\begin{mathbox}[Reward Decomposition]
+\[
+  r = \underbrace{10 \max(0, u_{t-1}-u_t)}_{\text{localisation gain}}
+    + \begin{cases}
+        -5\,e + (\pm 5) & \text{CREATE\_KF} \\
+        +3\,e - 5\cdot\mathbb{1}[u>0.6] & \text{SKIP}
+      \end{cases}
+\]
+The reward is \emph{dense}: every step provides a signal, making learning
+faster than sparse rewards (e.g., only rewarding at episode end).
+\end{mathbox}
+
+\section{Q-Learning Update}
+
+\begin{lstlisting}
+# update_q_value (lines 238-261)
+current_q = self.q_table[state_key][action]   # L250
+
+if done:
+    max_next_q = 0.0
+else:
+    max_next_q = max(self.q_table[next_state_key].values())  # L255
+
+# Q-learning Bellman update
+new_q = current_q + self.learning_rate * (
+    reward + self.discount_factor * max_next_q - current_q)  # L258
+self.q_table[state_key][action] = new_q   # L259
+\end{lstlisting}
+
+This is the \textbf{exact Q-learning update}:
+\[
+  Q(s,a) \xleftarrow{\alpha} Q(s,a) + \alpha\bigl[r + \gamma \max_{a'}Q(s',a') - Q(s,a)\bigr]
+\]
+The term $\bigl[r + \gamma \max_{a'}Q(s',a') - Q(s,a)\bigr]$ is called the
+\emph{temporal-difference (TD) error} $\delta$.
+
+%=============================================================================
+\chapter{Module: \texttt{dqn\_agent.py}}
+%=============================================================================
+
+\section{Purpose}
+
+Implements a \textbf{Deep Q-Network (DQN)} with Double-DQN correction and
+experience replay for the 3-action keyframe selection problem:
+\begin{itemize}
+  \item Action 0: \code{SKIP} (cheapest; skip frame entirely)
+  \item Action 1: \code{SAVE\_NORMAL} (full keyframe)
+  \item Action 2: \code{SAVE\_LIGHT} (pose-only keyframe)
+\end{itemize}
+
+\section{Network Architecture}
+
+\begin{lstlisting}
+class DQNNetwork(nn.Module):
+    def __init__(self, state_dim=7, action_dim=3, hidden_dim=128):
+        super(DQNNetwork, self).__init__()   # L34
+        self.fc1 = nn.Linear(state_dim, hidden_dim)    # L36: 7 -> 128
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim)   # L37: 128 -> 128
+        self.fc3 = nn.Linear(hidden_dim, action_dim)   # L38: 128 -> 3
+        self.relu = nn.ReLU()                           # L40
+
+    def forward(self, state):
+        x = self.relu(self.fc1(state))   # L44
+        x = self.relu(self.fc2(x))       # L45
+        q_values = self.fc3(x)           # L46: no activation (regression)
+        return q_values
+\end{lstlisting}
+
+\begin{mathbox}[Network Computation]
+For state $\vect{s} \in \R^7$:
+\[
+  \vect{h}_1 = \mathrm{ReLU}(\mat{W}_1 \vect{s} + \vect{b}_1), \quad \mat{W}_1 \in \R^{128\times7}
+\]
+\[
+  \vect{h}_2 = \mathrm{ReLU}(\mat{W}_2 \vect{h}_1 + \vect{b}_2), \quad \mat{W}_2 \in \R^{128\times128}
+\]
+\[
+  \vect{q} = \mat{W}_3 \vect{h}_2 + \vect{b}_3, \quad \mat{W}_3 \in \R^{3\times128}
+\]
+Total parameters: $7\cdot128 + 128 + 128\cdot128 + 128 + 128\cdot3 + 3 = 18\,051$.
+\end{mathbox}
+
+\section{Experience Replay Buffer}
+
+\begin{lstlisting}
+class ReplayBuffer:
+    def __init__(self, capacity: int = 100000):
+        self.buffer = deque(maxlen=capacity)   # L60: circular buffer
+
+    def push(self, state, action, reward, next_state, done):
+        self.buffer.append((state, action, reward, next_state, done))  # L66
+
+    def sample(self, batch_size: int) -> Tuple:
+        batch = random.sample(self.buffer, batch_size)  # L73: iid sampling
+        states = np.array([x[0] for x in batch])        # L75
+        actions = np.array([x[1] for x in batch])       # L76
+        rewards = np.array([x[2] for x in batch])       # L77
+        next_states = np.array([x[3] for x in batch])   # L78
+        dones = np.array([x[4] for x in batch])         # L79
+        return states, actions, rewards, next_states, dones
+\end{lstlisting}
+
+\begin{notebox}[Why Experience Replay?]
+Naive online learning with consecutive frames violates the i.i.d.\ assumption
+of stochastic gradient descent because consecutive SLAM frames are highly
+correlated. Replaying random past experiences breaks this correlation,
+substantially improving training stability and sample efficiency.
+\end{notebox}
+
+\section{Double DQN Training Step}
+
+\begin{lstlisting}
+# train_step (lines 180-240)
+
+# Current Q-values for taken actions
+q_values = self.policy_net(states)             # L208: [B, 3]
+q_values = q_values.gather(1, actions.unsqueeze(1)).squeeze(1)  # L209
+
+# Double DQN target (no gradient)
+with torch.no_grad():
+    next_q_values = self.target_net(next_states)  # L213: target net
+    next_actions = self.policy_net(next_states).argmax(1)    # L214: policy selects
+    next_q_values = next_q_values.gather(1,
+                    next_actions.unsqueeze(1)).squeeze(1)    # L215: target evaluates
+    target_q_values = (rewards
+                       + (1 - dones) * self.gamma * next_q_values)  # L216
+
+target_q_values = torch.clamp(target_q_values, -50, 50)  # L219: stability
+
+loss = nn.MSELoss()(q_values, target_q_values)  # L222
+
+self.optimizer.zero_grad()                      # L225
+loss.backward()                                 # L226: backprop
+torch.nn.utils.clip_grad_norm_(
+    self.policy_net.parameters(), 1.0)          # L227: gradient clipping
+self.optimizer.step()                           # L228
+\end{lstlisting}
+
+\begin{mathbox}[Double DQN vs. Standard DQN]
+\textbf{Standard DQN} (Mnih et al., 2015):
+\[
+  y^{\text{DQN}} = r + \gamma \max_{a'} Q_{\theta^-}(s', a')
+\]
+\textbf{Double DQN} (van Hasselt et al., 2016):
+\[
+  y^{\text{DDQN}} = r + \gamma Q_{\theta^-}\!\bigl(s',\; \argmax_{a'}Q_\theta(s',a')\bigr)
+\]
+Standard DQN overestimates Q-values because it uses the same network to select
+\emph{and} evaluate the greedy action. Double DQN separates these roles:
+the online network selects; the target network evaluates. This reduces
+overestimation bias by $\sim20$--$40\%$ on typical RL benchmarks.
+\end{mathbox}
+
+\subsection{Gradient Clipping}
+
+\begin{lstlisting}
+torch.nn.utils.clip_grad_norm_(self.policy_net.parameters(), 1.0)
+\end{lstlisting}
+
+Clips the global gradient norm to 1.0:
+\[
+  \text{if } \norm{\nabla_\theta \mathcal{L}}_2 > 1 \implies
+  \nabla_\theta \leftarrow \frac{\nabla_\theta}{\norm{\nabla_\theta}_2}
+\]
+This prevents exploding gradients, a common failure mode in RL training where
+high-variance rewards produce large, destabilising parameter updates.
+
+\subsection{Target Network Update}
+
+\begin{lstlisting}
+if self.training_steps % self.target_update_freq == 0:  # L234: every 1000 steps
+    self.target_net.load_state_dict(self.policy_net.state_dict())  # L235
+\end{lstlisting}
+
+The target network $\theta^-$ is a lagged copy of $\theta$, updated every
+$T_{\text{target}}=1000$ steps. This stabilises training by providing
+non-moving regression targets.
+
+\subsection{Epsilon Decay}
+
+\begin{lstlisting}
+# _update_epsilon (lines 242-249)
+if self.step_count < self.epsilon_decay_steps:
+    self.epsilon = (self.epsilon_start - self.epsilon_end) * \
+                   (1 - self.step_count / self.epsilon_decay_steps) \
+                   + self.epsilon_end   # L245-246
+else:
+    self.epsilon = self.epsilon_end     # L248: plateau at min
+self.step_count += 1
+\end{lstlisting}
+
+Linear annealing from $\varepsilon_0 = 0.3$ to $\varepsilon_\infty = 0.05$
+over $T = 100\,000$ steps:
+\[
+  \varepsilon(t) = (\varepsilon_0 - \varepsilon_\infty)\left(1 - \frac{t}{T}\right) + \varepsilon_\infty
+\]
+
+%=============================================================================
+\chapter{Module: \texttt{energy\_battery\_model.py}}
+%=============================================================================
+
+\section{Energy Cost Table}
+
+\begin{lstlisting}
+ENERGY_COSTS = {
+    'skip_frame':        0.02,   # minimal tracking only
+    'save_light':        0.20,   # pose + reduced descriptors
+    'save_normal':       0.60,   # full descriptor set
+    'save_high':         1.00,   # full + extra processing
+    'bundle_adjustment': 0.30,
+    'loop_closure_check':0.15,
+    'map_transmission':  0.40
+}
+\end{lstlisting}
+
+These normalised costs (relative to the worst-case ``save\_high'') are used in
+reward computation. They are engineering estimates; in production they
+should be calibrated with actual power measurements via a hardware power meter.
+
+\section{Battery-Aware Energy Weight Multiplier}
+
+\begin{lstlisting}
+def get_energy_weight_multiplier(self, k_batt: float = 1.5) -> float:
+    norm_battery = self.get_normalized_battery()      # b in [0,1]
+    return 1.0 + k_batt * (1.0 - norm_battery)       # L192
+\end{lstlisting}
+
+\begin{mathbox}[Energy Weight Multiplier]
+\[
+  w_e(b) = 1 + k_{\text{batt}}\,(1 - b), \quad b \in [0,1]
+\]
+At full battery ($b=1$): $w_e = 1$ (energy cost at face value).\\
+At empty battery ($b=0$): $w_e = 1 + 1.5 = 2.5$ (costs 2.5$\times$ more).\\
+This continuously scales the penalty for expensive actions as battery depletes.
+\end{mathbox}
+
+\section{Dense Reward Calculator}
+
+\begin{lstlisting}
+# compute_reward (lines 263-325)
+delta_uncertainty = np.clip(prev_u - curr_u, -MAX_LOSS, MAX_GAIN)  # L287
+localization_reward = delta_uncertainty * W_BENEFIT                 # L289: *8
+
+energy_cost = self.energy_model.get_action_cost(action)             # L292
+energy_weight = W_ENERGY * battery_monitor.get_energy_weight_multiplier()  # L296
+energy_penalty = -energy_weight * energy_cost                       # L300
+
+if not tracking_ok:
+    tracking_penalty = -W_TRACKING_LOSS   # L304: -40 for lost tracking
+
+step_penalty = -W_STEP   # L309: -0.01 (dithering discouragement)
+
+# Bonus for successful skip; penalty for wasted save
+bonus = BONUS_SKIP if skip_ok else -PENALTY_WASTE_if_wasted   # L313-317
+
+reward = localization_r + energy_penalty + tracking_penalty + step_penalty + bonus
+reward = np.clip(reward, -50.0, 50.0)
+\end{lstlisting}
+
+Complete reward formula:
+\[
+  r = 8\,\Delta u_{\text{clip}} - W_E\,w_b\,c_a - 40\,\mathbb{1}[\neg\text{track}] - 0.01 + \text{bonus}
+\]
+where $\Delta u_{\text{clip}} = \text{clip}(u_{t-1}-u_t, -0.2, 0.2)$ and
+$c_a$ is the normalised action energy cost.
+
+%=============================================================================
+\chapter{Module: \texttt{degradation\_policy.py}}
+%=============================================================================
+
+\section{4-Level Degradation Policy}
+
+\begin{table}[H]
+\centering
+\caption{SLAM degradation levels vs.\ battery range}\label{tab:degrad}
+\begin{tabular}{clcccccc}
+\toprule
+\textbf{Level} & \textbf{Name} & \textbf{Batt.\%} & \textbf{Desc.} & \textbf{KF freq.} & \textbf{LC freq.} & \textbf{Max desc.} & \textbf{BA iter.} \\
+\midrule
+0 & FULL FIDELITY & 60--100 & SIFT & 100\% & 100\% & 2000 & 5 \\
+1 & MILD & 40--60 & SIFT & 90\% & 90\% & 1500 & 3 \\
+2 & MODERATE & 20--40 & ORB & 70\% & 50\% & 800 & 1 \\
+3 & AGGRESSIVE & 0--20 & FAST & 40\% & 10\% & 300 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent Level transitions are determined by:
+\begin{lstlisting}
+def _get_level_from_battery(self, battery_pct: float) -> int:
+    if battery_pct >= 60: return 0
+    elif battery_pct >= 40: return 1
+    elif battery_pct >= 20: return 2
+    else: return 3
+\end{lstlisting}
+
+\section{Stochastic Keyframe Gating}
+
+\begin{lstlisting}
+def should_create_keyframe(self, random_value: float = None) -> bool:
+    if random_value is None:
+        random_value = np.random.random()
+    threshold = self.configuration['keyframe_frequency']
+    return random_value < threshold   # L175
+\end{lstlisting}
+
+At level 3 (\code{keyframe\_frequency=0.4}), each frame independently has a
+$40\%$ probability of being promoted to a keyframe. This is a simple
+\emph{Bernoulli trial}: $X \sim \text{Bernoulli}(p=0.4)$.
+
+\section{Descriptor Subsampling}
+
+\begin{lstlisting}
+descriptor_variance = np.var(descriptors, axis=1)         # L250: per-descriptor
+top_indices = np.argsort(descriptor_variance)[-keep_count:]  # L251: highest var
+return descriptors[top_indices]                              # L253
+\end{lstlisting}
+
+\begin{notebox}[Information-Theoretic Justification]
+High-variance descriptors encode more discriminative information. Retaining
+the top-$k\%$ by descriptor-dimension variance is a heuristic approximation
+to maximising the entropy of the retained descriptor set, preserving the most
+unique feature information given a fixed budget.
+\end{notebox}
+
+%=============================================================================
+\chapter{Module: \texttt{integrated\_slam.py} (Root Entry Point)}
+%=============================================================================
+
+\section{Purpose}
+
+The root \file{integrated\_slam.py} is the entry point for the \emph{non-RL}
+version of the system. It wires together:
+\begin{enumerate}
+  \item \code{BatteryManager} --- monitors system battery and enforces hard frame-skipping rules.
+  \item \code{IntegratedSLAMVisualizer} --- real-time 3-D matplotlib animation.
+  \item \code{IntegratedStereoSLAMSystem} --- main run loop.
+\end{enumerate}
+
+\section{BatteryManager}
+
+\begin{lstlisting}
+BATTERY_CRITICAL = 5   # L31: < 5%  -> process 1/8 frames
+BATTERY_LOW      = 15  # L32: < 15% -> process 1/4 frames
+BATTERY_NORMAL   = 50  # L33: < 50% -> process 1/2 frames
+BATTERY_GOOD     = 100 # L34: >= 50% -> process all frames
+
+def should_skip_frame(self, frame_count: int) -> bool:
+    mode = self.get_mode()
+    if mode == 'critical':
+        return frame_count % 8 != 0   # L72-73: 1 of 8
+    elif mode == 'low':
+        return frame_count % 4 != 0   # L75-76: 1 of 4
+    elif mode == 'moderate':
+        return frame_count % 2 != 0   # L78-79: 1 of 2
+    else:
+        return False                   # L81-82: all frames
+\end{lstlisting}
+
+This is a \emph{deterministic} gating policy (as opposed to the stochastic
+Bernoulli policy in \code{degradation\_policy.py}) based on the frame counter
+modulo.
+
+\subsection{Keyframe Displacement Multiplier}
+
+\begin{lstlisting}
+def get_keyframe_threshold_multiplier(self) -> float:
+    mode = self.get_mode()
+    if mode == 'critical': return 3.0   # L89
+    elif mode == 'low':    return 2.0   # L91
+    elif mode == 'moderate':return 1.5  # L93
+    else:                  return 1.0   # L95
+\end{lstlisting}
+
+Adaptive threshold:
+\[
+  d_{\min}^{\text{eff}} = 0.05 \times m_{\text{batt}}
+\]
+At \code{critical} mode, the minimum displacement becomes 0.15\,m (3$\times$ larger),
+so keyframes are only created when the camera has moved significantly, drastically
+reducing the keyframe creation rate.
+
+\section{3-D Visualizer: FuncAnimation}
+
+\begin{lstlisting}
+ani = FuncAnimation(self.visualizer.fig, update_plot,
+                    interval=300,              # L459: 300ms between frames
+                    blit=True,                 # only re-draw changed artists
+                    cache_frame_data=False)    # no caching (live data)
+plt.pause(0.3)                                # L466: yield to GUI event loop
+\end{lstlisting}
+
+\noindent \code{FuncAnimation} calls \code{update\_plot} every 300\,ms in the
+matplotlib GUI event loop. The SLAM processing runs in the main thread;
+visualisation runs in a \code{daemon} thread (dies when the main thread ends).
+
+\section{Main Run Loop}
+
+The main processing sequence (lines 269--348):
+
+\begin{algorithm}[H]
+\caption{IntegratedStereoSLAMSystem.run()}\label{alg:main}
+\begin{algorithmic}[1]
+\State Connect cameras; start viz thread
+\While{running}
+  \State $b \leftarrow$ \texttt{battery\_manager.update()}
+  \If{\texttt{should\_skip\_frame(frame\_counter)}}
+    \State \textbf{continue}                \Comment{save energy}
+  \EndIf
+  \State $(I_L, I_R) \leftarrow$ \texttt{camera\_manager.get\_stereo\_pair()}
+  \State $d_{\min} \leftarrow 0.05 \times m_\text{batt}$   \Comment{adaptive threshold}
+  \State \texttt{slam.min\_displacement} $\leftarrow d_{\min}$
+  \State $\text{kf} \leftarrow$ \texttt{slam.process\_stereo\_pair}$(I_L, I_R)$
+  \If{$N_\text{kf} > N_\text{last\_ba} + \Delta_\text{ba}$}
+    \State \texttt{slam.optimize\_bundle()}
+  \EndIf
+  \State \texttt{display()} and handle keyboard
+  \State compute FPS
+\EndWhile
+\State \texttt{cleanup(); save\_map()}
+\end{algorithmic}
+\end{algorithm}
+
+%=============================================================================
+\chapter{Module: \texttt{integrated\_slam\_rl.py}}
+%=============================================================================
+
+\section{Purpose}
+
+This is the \emph{ultimate} entry point combining all sub-systems:
+SLAM + RL + 2-D trajectory overlay + battery management + rich GUI.
+
+\section{RL Integration Loop (Key Additions)}
+
+\begin{lstlisting}
+# Lines 299-330
+
+# 1. Estimate state
+uncertainty = rl_agent.uncertainty_metrics.update_from_slam(slam)  # L301
+energy_need = energy_model.estimate_energy_reduction(battery_mode)  # L305
+
+# 2. Get RL decision
+rl_action = rl_agent.select_action(
+    uncertainty, energy_need, battery_mode, training=training_mode)  # L311-313
+should_create_keyframe = (rl_action == CREATE_KEYFRAME)              # L315
+
+# 3. Learn in training mode
+if training_mode:
+    next_uncertainty = uncertainty + np.random.normal(0, 0.05)  # L320
+    rl_agent.learn_from_experience(
+        uncertainty, energy_need, battery_mode,
+        prev_uncertainty, should_create_keyframe,
+        next_uncertainty, energy_need)   # L323-327
+\end{lstlisting}
+
+\noindent In training mode the agent learns \emph{online} while the SLAM system
+runs. The ``next uncertainty'' is approximated by adding Gaussian noise to the
+current uncertainty (line 320), simulating the uncertainty dynamics without
+waiting one full frame.
+
+\section{2-D Trajectory Overlay}
+
+\begin{lstlisting}
+# Lines 400-453
+traj_2d = trajectory[:, :2]         # project to XY plane
+scale = (overlay_size - 2*margin) / max(max_x - min_x, max_y - min_y)
+traj_scaled = (traj_2d - [min_x, min_y]) * scale + margin
+# Draw coloured line (gradient from blue to red over time)
+for i in range(len(traj_scaled) - 1):
+    color = (int(255*(i/len(traj_scaled))), 100,
+             int(100 + 155*(i/len(traj_scaled))))
+    cv2.line(overlay, pt1, pt2, color, 2)
+# Blend onto left frame
+left_resized[0:H, 0:W] = cv2.addWeighted(
+    left_resized[0:H, 0:W], 0.6, overlay, 0.4, 0)
+\end{lstlisting}
+
+The colour gradient maps time to hue: early waypoints are blue
+$(0, 100, 100)$, later ones trend toward red $(255, 100, 255)$.
+\code{cv2.addWeighted} computes: $I_{\text{blend}} = 0.6\,I_{\text{cam}} + 0.4\,I_{\text{overlay}}$.
+
+%=============================================================================
+\chapter{Module: \texttt{train\_rl\_agent.py}}
+%=============================================================================
+
+\section{SLAM Simulator}
+
+The simulator provides a fast, SLAM-free environment for offline RL training.
+
+\begin{lstlisting}
+class SLAMSimulator:
+    def reset(self):
+        self.uncertainty = np.random.uniform(0.2, 0.8)  # L28
+        self.energy_need = np.random.uniform(0.1, 0.9)  # L29
+        self.battery_mode = np.random.choice(
+            ['critical','low','moderate','good'])         # L30
+
+    def step(self, action: KeyframeAction):
+        if action == CREATE_KEYFRAME:
+            self.uncertainty -= np.random.uniform(0.05, 0.15)  # L54
+            self.energy_need += np.random.uniform(0.05, 0.10)  # L58
+        else:
+            self.uncertainty += np.random.uniform(0.02, 0.08)  # L62
+            self.energy_need -= np.random.uniform(0.05, 0.15)  # L65
+        # Stochastic noise
+        self.uncertainty += np.random.normal(0, 0.02)   # L69
+        # Battery mode change (10% probability)
+        if np.random.random() < 0.1:
+            self.battery_mode = np.random.choice(...)   # L73
+\end{lstlisting}
+
+\begin{notebox}[Why Simulate Before Deployment?]
+Running the SLAM pipeline for 500 episodes (50\,000 steps) requires 500 camera
+sessions. The simulator enables training in seconds on a CPU with a well-defined
+transition model, providing a pre-trained policy that requires only minimal
+fine-tuning on the real system.
+\end{notebox}
+
+\section{Training Loop}
+
+\begin{lstlisting}
+for episode in range(episodes):       # L161
+    state = env.reset()
+    for step in range(episode_length):  # L167
+        action = agent.select_action(
+            state['uncertainty'], state['energy_need'],
+            state['battery_mode'], training=True)         # L169-173
+        next_state, reward, done, info = env.step(action) # L177
+        agent.learn_from_experience(...)                   # L180-189
+        state = next_state
+    # Epsilon decay per episode
+    agent.epsilon *= epsilon_decay           # L198: 0.995 per episode
+    agent.epsilon = max(agent.epsilon, 0.01) # L199: floor at 1%
+\end{lstlisting}
+
+\begin{mathbox}[Epsilon Decay Schedule]
+Exponential decay per episode with factor $\delta = 0.995$:
+\[
+  \varepsilon_n = \max\!\left(\varepsilon_0 \cdot \delta^n,\; \varepsilon_{\min}\right)
+\]
+After 500 episodes: $\varepsilon_{500} = 1.0 \times 0.995^{500} \approx 0.082$,
+just above the floor of 0.01.
+\end{mathbox}
+
+%=============================================================================
+\chapter{Tools and Launcher Scripts}
+%=============================================================================
+
+\section{Dynamic IP Configuration (\texttt{tools/dynamic\_ip\_config.py})}
+
+Provides a GUI or command-line tool to discover and configure camera IP
+addresses on the local network. Key functionality:
+\begin{itemize}
+  \item Network scan for ESP32-CAM / Raspberry Pi camera devices
+  \item Saves discovered IPs to a JSON configuration file
+  \item Provides a Tkinter GUI for easy configuration
+\end{itemize}
+
+\section{Launcher Scripts Overview}
+
+\begin{table}[H]
+\centering
+\caption{Launcher script purposes}\label{tab:launchers}
+\begin{tabular}{lp{9cm}}
+\toprule
+\textbf{Script} & \textbf{Launches} \\
+\midrule
+\file{launch\_basic\_slam.py} & Basic stereo SLAM without RL \\
+\file{launch\_integrated\_slam.py} & Battery-aware SLAM (\file{integrated\_slam.py}) \\
+\file{launch\_integrated\_slam\_rl.py} & Full SLAM+RL system \\
+\file{launch\_rl\_trainer.py} & Offline RL training on SLAM simulator \\
+\file{launch\_rl\_gui.py} & Training dashboard GUI \\
+\file{launch\_stereo\_slam.py} & Stereo-only SLAM \\
+\file{play\_dataset\_video.py} & Replay saved SLAM map as video \\
+\file{run\_backend.py} & Backend API server \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%=============================================================================
+\chapter{Data Flow: End-to-End Trace}
+%=============================================================================
+
+\section{Single Frame Processing Trace}
+
+\begin{enumerate}[leftmargin=1.5em, label=\textbf{Step~\arabic*.}]
+
+  \item \textbf{Frame acquisition} (\file{camera\_stream\_handler.py})\\
+        HTTP chunks arrive $\to$ JPEG boundaries detected $\to$ \code{cv2.imdecode}
+        $\to$ NumPy BGR array \code{(H,W,3)}.
+
+  \item \textbf{Battery check} (\file{integrated\_slam.py} or \file{integrated\_slam\_rl.py})\\
+        \code{psutil.sensors\_battery()} queried every 5\,s $\to$ mode
+        \{critical, low, moderate, good\} $\to$ frame-skip decision.
+
+  \item \textbf{Feature extraction} (\file{advanced\_features.py})\\
+        CLAHE $\to$ ORB/SIFT/AKAZE \code{detectAndCompute}
+        $\to$ \code{(keypoints, descriptors, quality\_score)}.
+
+  \item \textbf{Stereo matching} (\file{advanced\_features.py})\\
+        BF-matcher \code{knnMatch(k=2)} $\to$ Lowe ratio test $\to$
+        list of \code{(left\_idx, right\_idx)} pairs.
+
+  \item \textbf{Depth estimation} (\file{stereo\_vision.py})\\
+        \code{StereoBM.compute} $\to$ disparity map $\to$
+        $Z = fb/d$ per matched pixel.
+
+  \item \textbf{3-D triangulation} (\file{stereo\_vision.py})\\
+        Back-projection: $(X,Y,Z) = (u-c_x,\, v-c_y,\, f) \cdot Z/f$.
+
+  \item \textbf{Visual odometry} (\file{visual\_odometry.py})\\
+        \code{findEssentialMat} (RANSAC) $\to$ \code{recoverPose}
+        $\to$ $(\mat{R}, \vect{t})$ $\to$ accumulated pose $\mat{T}$.
+
+  \item \textbf{RL decision} (\file{rl\_keyframe\_selector.py} or \file{dqn\_agent.py})\\
+        Compute uncertainty $u$ and energy need $e$ $\to$
+        $\varepsilon$-greedy $Q$-table / neural network lookup
+        $\to$ \{SKIP, CREATE\}.
+
+  \item \textbf{Keyframe creation} (\file{stereo\_slam.py})\\
+        If CREATE: store pose + descriptors + 3-D points $\to$ loop closure
+        check $\to$ (periodic) bundle adjustment.
+
+  \item \textbf{Q-value update} (training mode)\\
+        Next-state uncertainty computed $\to$ TD error $\delta$
+        $\to$ $Q \leftarrow Q + \alpha\delta$.
+
+  \item \textbf{Visualisation}\\
+        Point cloud + trajectory rendered in 3-D Matplotlib window.
+        2-D trajectory overlay blended onto left camera feed.
+        Statistics displayed via OpenCV \code{putText}.
+
+  \item \textbf{Persistence}\\
+        On quit: \code{save\_map()} serialises point cloud + trajectory to JSON.
+        (Optionally: PLY export for MeshLab / CloudCompare.)
+\end{enumerate}
+
+%=============================================================================
+\chapter{Configuration and Hyper-Parameters}
+%=============================================================================
+
+\begin{longtable}{|p{4.5cm}|p{2.5cm}|p{6.5cm}|}
+\caption{Complete hyper-parameter reference}\label{tab:hyperparams}\\
+\hline
+\textbf{Parameter} & \textbf{Default} & \textbf{Description / Effect} \\ \hline
+\endfirsthead
+\hline
+\textbf{Parameter} & \textbf{Default} & \textbf{Description / Effect} \\ \hline
+\endhead
+\multicolumn{3}{c}{\textit{Camera \& Stereo}} \\ \hline
+\code{focal\_length} & 500 px & Pinhole camera focal length \\ \hline
+\code{baseline} & 0.12 m & Stereo camera separation \\ \hline
+\code{numDisparities} & 128 & StereoBM search range \\ \hline
+\code{blockSize} & 15 & StereoBM correlation window \\ \hline
+\multicolumn{3}{c}{\textit{SLAM}} \\ \hline
+\code{max\_keyframes} & 100 & Max keyframes in circular buffer \\ \hline
+\code{min\_displacement} & 0.05 m & Min translation for new keyframe \\ \hline
+\code{loop\_closure\_threshold} & 0.75 & Min visual match score for loop closure \\ \hline
+\code{max\_features} (ORB) & 500 & Max ORB keypoints per frame \\ \hline
+\multicolumn{3}{c}{\textit{Q-Learning Agent}} \\ \hline
+\code{learning\_rate} $\alpha$ & 0.1 & Q-value update step size \\ \hline
+\code{discount\_factor} $\gamma$ & 0.95 & Future reward discount \\ \hline
+\code{epsilon} & 0.1 & Exploration rate \\ \hline
+\code{state\_bins} & 10 & Discretisation resolution \\ \hline
+\multicolumn{3}{c}{\textit{DQN Agent}} \\ \hline
+\code{hidden\_dim} & 128 & Neural network hidden size \\ \hline
+\code{learning\_rate} & 1e-4 & Adam optimiser LR \\ \hline
+\code{gamma} & 0.99 & Discount factor \\ \hline
+\code{epsilon\_start} & 0.3 & Initial exploration \\ \hline
+\code{epsilon\_end} & 0.05 & Final exploration \\ \hline
+\code{epsilon\_decay\_steps} & 100\,000 & Steps to decay over \\ \hline
+\code{buffer capacity} & 100\,000 & Replay buffer size \\ \hline
+\code{batch\_size} & 64 & Training batch size \\ \hline
+\code{target\_update\_freq} & 1000 & Steps between target net sync \\ \hline
+\multicolumn{3}{c}{\textit{Reward Weights}} \\ \hline
+\code{W\_BENEFIT} & 8.0 & Localisation improvement weight \\ \hline
+\code{W\_ENERGY} & 6.0 & Energy cost weight \\ \hline
+\code{W\_TRACKING\_LOSS} & 40.0 & Tracking failure penalty \\ \hline
+\code{BONUS\_SKIP} & 2.0 & Successful skip bonus \\ \hline
+\code{PENALTY\_WASTE} & 3.0 & Wasted keyframe penalty \\ \hline
+\multicolumn{3}{c}{\textit{Battery Thresholds}} \\ \hline
+\code{BATTERY\_CRITICAL} & 5\% & Process 1/8 frames \\ \hline
+\code{BATTERY\_LOW} & 15\% & Process 1/4 frames \\ \hline
+\code{BATTERY\_NORMAL} & 50\% & Process 1/2 frames \\ \hline
+\end{longtable}
+
+%=============================================================================
+\chapter{Algorithms Summary}
+%=============================================================================
+
+\begin{table}[H]
+\centering
+\caption{Key algorithms and their complexity}\label{tab:algos}
+\begin{tabular}{llll}
+\toprule
+\textbf{Algorithm} & \textbf{Location} & \textbf{Time} & \textbf{Notes} \\
+\midrule
+MJPEG boundary scan & \file{camera\_stream\_handler} & $\mathcal{O}(C)$ & $C$ = chunk size \\
+CLAHE & \file{advanced\_features} & $\mathcal{O}(HW)$ & per frame \\
+SIFT detection & \file{stereo\_vision} & $\mathcal{O}(HW)$ & scale space \\
+ORB detection & \file{advanced\_features} & $\mathcal{O}(HW)$ & faster than SIFT \\
+BF kNN matching & \file{advanced\_features} & $\mathcal{O}(N_1 N_2 D)$ & $D$=descriptor dim \\
+Lowe ratio test & \file{stereo\_vision} & $\mathcal{O}(M)$ & $M$ = match count \\
+StereoBM & \file{stereo\_vision} & $\mathcal{O}(HWd_{\max})$ & $d_{\max}$=128 \\
+Back-projection & \file{stereo\_vision} & $\mathcal{O}(M)$ & vectorised \\
+Essential matrix RANSAC & \file{visual\_odometry} & $\mathcal{O}(N\log N)$ & \\
+Kabsch SVD & \file{stereo\_vision} & $\mathcal{O}(N)$ & SVD of $3\times3$ \\
+Loop closure check & \file{stereo\_slam} & $\mathcal{O}(K \cdot N_1 N_2 D)$ & $K$ = old keyframes \\
+Voxel downsampling & \file{advanced\_features} & $\mathcal{O}(N\log N)$ & \\
+Q-table lookup & \file{rl\_keyframe\_selector} & $\mathcal{O}(1)$ & hash map \\
+DQN forward pass & \file{dqn\_agent} & $\mathcal{O}(7{\cdot}128 + 128^2 + 128{\cdot}3)$ & tiny net \\
+Double DQN update & \file{dqn\_agent} & $\mathcal{O}(B \cdot \text{net})$ & $B=64$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%=============================================================================
+\chapter{Known Limitations and Future Work}
+%=============================================================================
+
+\section{Current Limitations}
+
+\begin{enumerate}
+  \item \textbf{No hardware synchronisation}: The two cameras are polled
+        independently; temporal mismatch can introduce small but systematic
+        errors in stereo depth estimation.
+
+  \item \textbf{Fixed intrinsics}: Focal length (500 px) and principal point
+        ($320, 240$) are hardcoded estimates. A proper calibration step using a
+        checkerboard and \code{cv2.calibrateCamera} would substantially improve
+        3-D accuracy.
+
+  \item \textbf{Simplified bundle adjustment}: The \code{optimize\_bundle}
+        method is a placeholder. Full BA requires a non-linear least-squares
+        solver (e.g., Ceres, g2o) minimising reprojection error over all
+        poses and points simultaneously.
+
+  \item \textbf{No pose-graph optimisation}: Loop closures are detected but their
+        constraints are not used to close the trajectory loop mathematically.
+
+  \item \textbf{Tabular Q-table scalability}: The Q-table has $400$ states;
+        for richer state representations (e.g., including optical flow, IMU) the
+        state space explodes. The DQN agent addresses this but is not yet
+        integrated into the main pipeline.
+
+  \item \textbf{Online RL noise}: The next-state uncertainty approximation
+        (Gaussian noise) in training mode is inaccurate; a proper transition
+        model or off-policy training would be more principled.
+\end{enumerate}
+
+\section{Future Extensions}
+
+\begin{enumerate}
+  \item \textbf{IMU fusion}: Integrate accelerometer/gyroscope data to improve
+        pose estimation between frames, especially under fast motion or poor
+        lighting.
+
+  \item \textbf{Semantic SLAM}: Use a small object-detection network (e.g., YOLO
+        nano) to label landmarks semantically, enabling loop closure via
+        object co-occurrence.
+
+  \item \textbf{Cloud RL Training}: Offload DQN training to a GPU server in
+        the cloud; the robot downloads the latest policy weights periodically
+        (federated RL).
+
+  \item \textbf{Pose-Graph SLAM}: Integrate iSAM2 or GTSAM for proper maximum a
+        posteriori pose estimation over the full trajectory.
+
+  \item \textbf{Curriculum Training}: Start the SLAM simulator with easy episodes
+        (high battery, low uncertainty) and progressively increase difficulty,
+        a technique shown to accelerate RL convergence substantially.
+\end{enumerate}
+
+%=============================================================================
+\chapter{Glossary}
+%=============================================================================
+
+\begin{description}[leftmargin=3cm, style=nextline]
+
+  \item[BA] Bundle Adjustment --- joint optimisation of camera poses and 3-D
+       point positions.
+
+  \item[CLAHE] Contrast-Limited Adaptive Histogram Equalization.
+
+  \item[DQN] Deep Q-Network --- Q-learning with a neural network function
+       approximator.
+
+  \item[DoG] Difference of Gaussians --- scale-space derivative used in SIFT.
+
+  \item[ε-greedy] Exploration policy: random with probability ε, greedy otherwise.
+
+  \item[Essential Matrix] $3\times3$ matrix encoding relative rotation and
+       translation between two calibrated camera views.
+
+  \item[Fundamental Matrix] $3\times3$ matrix encoding epipolar geometry for
+       uncalibrated cameras.
+
+  \item[IMU] Inertial Measurement Unit --- accelerometer + gyroscope.
+
+  \item[Kabsch] SVD-based algorithm for optimal rigid-body alignment.
+
+  \item[Keyframe] A selected image frame whose pose and features are stored in
+       the SLAM map.
+
+  \item[Loop Closure] Detection that the camera has returned to a previously
+       visited location, used to correct accumulated drift.
+
+  \item[MDP] Markov Decision Process.
+
+  \item[MJPEG] Motion JPEG --- video stream as consecutive JPEG frames.
+
+  \item[ORB] Oriented FAST and Rotated BRIEF --- fast binary feature detector.
+
+  \item[Pose] A $4\times4$ SE(3) rigid-body transformation matrix.
+
+  \item[RANSAC] Random Sample Consensus --- robust estimation in the presence
+       of outliers.
+
+  \item[Reward] Scalar feedback signal in RL indicating action quality.
+
+  \item[SIFT] Scale-Invariant Feature Transform (Lowe, 2004).
+
+  \item[SLAM] Simultaneous Localisation and Mapping.
+
+  \item[SE(3)] Special Euclidean group of 3-D rigid transformations.
+
+  \item[SO(3)] Special Orthogonal group of 3-D rotations.
+
+  \item[State Space] Discretised $10\times10\times4 = 400$ states encoding
+       uncertainty, energy need, and battery mode.
+
+  \item[StereoBM] OpenCV's block-matching stereo disparity algorithm.
+
+  \item[TD Error] Temporal-Difference error: $\delta = r + \gamma\max Q(s',a') - Q(s,a)$.
+
+  \item[Trajectory] Sequence of camera centre positions in world coordinates.
+
+  \item[Triangulation] Computing 3-D point position from 2-D stereo matches.
+
+  \item[Voxel Downsampling] Reducing point cloud density via spatial binning.
+\end{description}
+
+%=============================================================================
+\appendix
+%=============================================================================
+
+\chapter{Complete Class Hierarchy}
+
+\begin{longtable}{|p{5cm}|p{3cm}|p{5.5cm}|}
+\caption{All classes and their module}\label{tab:classes}\\
+\hline
+\textbf{Class} & \textbf{Module} & \textbf{Key Methods} \\ \hline
+\endfirsthead
+\hline
+\textbf{Class} & \textbf{Module} & \textbf{Key Methods} \\ \hline
+\endhead
+\code{CameraStreamHandler} & camera\_stream\_handler & start, stop, get\_frame \\ \hline
+\code{StereoCameraManager} & camera\_stream\_handler & start, stop, get\_stereo\_pair \\ \hline
+\code{StereoCalibratedPipeline} & stereo\_vision & extract\_features, match\_features, estimate\_depth, compute\_3d\_points \\ \hline
+\code{AdvancedFeatureExtractor} & advanced\_features & extract\_features \\ \hline
+\code{RobustStereoMatcher} & advanced\_features & match\_stereo, match\_temporal \\ \hline
+\code{EpipolarGeometry} & advanced\_features & compute\_fundamental\_matrix, filter\_by\_epipolar\_constraint \\ \hline
+\code{PointCloudFilter} & advanced\_features & remove\_outliers, voxel\_grid\_downsample, remove\_duplicates \\ \hline
+\code{LoopClosureDetector} & advanced\_features & add\_pose, detect\_loop\_closure \\ \hline
+\code{BundleAdjustment} & advanced\_features & optimize\_poses \\ \hline
+\code{CloudExporter} & advanced\_features & export\_ply, export\_trajectory\_json \\ \hline
+\code{VisualOdometryEngine} & visual\_odometry & process\_stereo\_pair, get\_trajectory, get\_camera\_pose \\ \hline
+\code{KeyFrame} & stereo\_slam & get\_camera\_center \\ \hline
+\code{StereoSLAMSystem} & stereo\_slam & process\_stereo\_pair, optimize\_bundle, save\_map \\ \hline
+\code{KeyframeAction} & rl\_keyframe\_selector & SKIP\_FRAME, CREATE\_KEYFRAME \\ \hline
+\code{LocalizationUncertaintyMetrics} & rl\_keyframe\_selector & update\_from\_slam \\ \hline
+\code{EnergyModel} & rl\_keyframe\_selector & estimate\_energy\_reduction \\ \hline
+\code{RLKeyframeSelector} & rl\_keyframe\_selector & select\_action, compute\_reward, update\_q\_value, learn\_from\_experience \\ \hline
+\code{RL\_SLAM\_Integration} & rl\_keyframe\_selector & decide\_keyframe\_creation \\ \hline
+\code{DQNNetwork} & dqn\_agent & forward \\ \hline
+\code{ReplayBuffer} & dqn\_agent & push, sample \\ \hline
+\code{DQNAgent} & dqn\_agent & select\_action, train\_step, save\_model, load\_model \\ \hline
+\code{EnergyModel} & energy\_battery\_model & get\_action\_cost, estimate\_remaining\_runtime \\ \hline
+\code{BatteryMonitor} & energy\_battery\_model & update, get\_degradation\_level, get\_energy\_weight\_multiplier \\ \hline
+\code{EnergyAwareRewardCalculator} & energy\_battery\_model & compute\_reward, compute\_batch\_reward \\ \hline
+\code{DegradationLevel} & degradation\_policy & (data class) \\ \hline
+\code{SLAMDegradationPolicy} & degradation\_policy & update\_battery, should\_create\_keyframe, subsample\_descriptors \\ \hline
+\code{SLAMSimulator} & train\_rl\_agent & reset, step \\ \hline
+\code{BatteryManager} & integrated\_slam & update\_battery\_state, get\_mode, should\_skip\_frame \\ \hline
+\code{IntegratedSLAMVisualizer} & integrated\_slam & initialize, render \\ \hline
+\code{IntegratedStereoSLAMSystem} & integrated\_slam & run, cleanup \\ \hline
+\code{UltimateIntegratedStereoSLAMWithRL} & integrated\_slam\_rl & run, cleanup \\ \hline
+\end{longtable}
+
+\chapter{Quick-Start Commands}
+
+\begin{lstlisting}[language=bash, style=pythonstyle]
+# Install dependencies
+pip install opencv-python numpy torch matplotlib psutil requests scipy
+
+# Run basic SLAM (no RL)
+python integrated_slam.py --left-camera http://192.168.1.47/stream \
+                           --right-camera http://192.168.1.48/stream
+
+# Run SLAM + RL (inference mode, pre-trained policy)
+python app/backend/integrated_slam_rl.py \
+    --left-camera http://192.168.1.47/stream \
+    --right-camera http://192.168.1.48/stream \
+    --model rl_keyframe_model.json
+
+# Train RL agent offline (500 episodes)
+python app/backend/train_rl_agent.py \
+    --episodes 500 --length 100 --lr 0.1 --output rl_keyframe_model.json
+
+# Run SLAM + RL (online training mode)
+python app/backend/integrated_slam_rl.py \
+    --left-camera http://192.168.1.47/stream \
+    --right-camera http://192.168.1.48/stream \
+    --train --model rl_keyframe_model.json
+\end{lstlisting}
+
+\chapter{Mathematical Reference Sheet}
+
+\begin{mathbox}[Key Equations Summary]
+\textbf{Stereo Depth:} $Z = \dfrac{f \cdot b}{d}$ \\[6pt]
+\textbf{Back-projection:} $X = \dfrac{(u-c_x)Z}{f},\; Y = \dfrac{(v-c_y)Z}{f}$ \\[6pt]
+\textbf{Epipolar:} $\vect{x}_2^\T \mat{E}\, \vect{x}_1 = 0$ \\[6pt]
+\textbf{Pose update:} $\mat{T}_{k+1} = \mat{T}_k \cdot \mat{T}_\Delta$ \\[6pt]
+\textbf{Q-learning:} $Q(s,a) \leftarrow Q(s,a) + \alpha\bigl[r + \gamma\max_{a'}Q(s',a') - Q(s,a)\bigr]$ \\[6pt]
+\textbf{Double DQN target:} $y = r + \gamma Q_{\theta^-}\!\bigl(s',\argmax_{a'}Q_\theta(s',a')\bigr)$ \\[6pt]
+\textbf{ε-greedy:} $\pi(s) = \begin{cases}\text{random} & \text{prob } \varepsilon \\ \argmax_a Q(s,a) & \text{prob } 1-\varepsilon\end{cases}$ \\[6pt]
+\textbf{Energy weight:} $w_e = 1 + k_b(1-b/100)$ \\[6pt]
+\textbf{Spatial entropy:} $H = -\sum_k p_k \ln p_k$ \\[6pt]
+\textbf{Kabsch:} $\mat{R}^* = \mat{V}\,\mathrm{diag}(1,1,\det(\mat{VU}^\T))\,\mat{U}^\T$ \\[6pt]
+\textbf{Lowe ratio:} $\norm{\vect{d}-\vect{d}^1} / \norm{\vect{d}-\vect{d}^2} < 0.7$ \\[6pt]
+\textbf{Gradient clipping:} $\nabla \leftarrow \nabla / \max(1, \norm{\nabla}/g_{\max})$
+\end{mathbox}
+
+%----------------------------- BIBLIOGRAPHY --------------------------------
+\begin{thebibliography}{99}
+
+\bibitem{lowe2004}
+D. G. Lowe,
+``Distinctive image features from scale-invariant keypoints,''
+\textit{International Journal of Computer Vision}, vol.~60, no.~2, pp.~91--110, 2004.
+
+\bibitem{mnih2015}
+V. Mnih et al.,
+``Human-level control through deep reinforcement learning,''
+\textit{Nature}, vol.~518, pp.~529--533, 2015.
+
+\bibitem{hasselt2016}
+H. van Hasselt, A. Guez, and D. Silver,
+``Deep reinforcement learning with double Q-learning,''
+\textit{Proc. AAAI}, 2016.
+
+\bibitem{kabsch1976}
+W. Kabsch,
+``A solution for the best rotation to relate two sets of vectors,''
+\textit{Acta Crystallographica A}, vol.~32, pp.~922--923, 1976.
+
+\bibitem{hartley2004}
+R. Hartley and A. Zisserman,
+\textit{Multiple View Geometry in Computer Vision}, 2nd~ed.
+Cambridge University Press, 2004.
+
+\bibitem{thrun2005}
+S. Thrun, W. Burgard, and D. Fox,
+\textit{Probabilistic Robotics}.
+MIT Press, 2005.
+
+\bibitem{sutton2018}
+R. S. Sutton and A. G. Barto,
+\textit{Reinforcement Learning: An Introduction}, 2nd~ed.
+MIT Press, 2018.
+
+\bibitem{rublee2011}
+E. Rublee et al.,
+``ORB: An efficient alternative to SIFT or SURF,''
+\textit{Proc. ICCV}, 2011.
+
+\bibitem{watkins1992}
+C. J. C. H. Watkins and P. Dayan,
+``Q-learning,''
+\textit{Machine Learning}, vol.~8, pp.~279--292, 1992.
+
+\end{thebibliography}
+
+\end{document}
